@@ -22,11 +22,14 @@
 #define SERVO1_180DEG 315
 #define SERVO1_STOP 90
 
+#define IR_SENSOR_PIN 2
+
 #define US_TRIGGER_PIN  5  // Arduino pin tied to trigger pin on the ultrasonic sensor.
 #define US_ECHO_PIN     6  // Arduino pin tied to echo pin on the ultrasonic sensor.
 #define US_MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 
 #define ACCEL_SAMPLERATE_DELAY_MS 100
+#define ORIENT_Z_FLIPPED 30
 
 Servo servo1; // setup servo
 NewPing sonar(US_TRIGGER_PIN, US_ECHO_PIN, US_MAX_DISTANCE); // setup ultrasonic sensor
@@ -39,6 +42,9 @@ void setup() {
   // Initialize Servo
   servo1.attach(SERVO1_PWM);
 
+  // Initialize IR Sensor
+  pinMode(IR_SENSOR_PIN, INPUT);
+
   // Initilaize Accelerometer
   if (!bno.begin()) {
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
@@ -50,13 +56,28 @@ void setup() {
 
 void loop() {
 
-  
+  bool flipped = isFlipped();
+  if (flipped) {
+    if (getIRSensorData()) {
+      Serial.println("Starting flipping maneuver");
+    }
+  }
 
 }
 
 // ---------------------------------------
 // ---------- EXAMPLE FUNCTIONS ----------
 // ---------------------------------------
+
+void readIRSensorExample() {
+// Programmer: Frederick Wachter - wachterfreddy@gmail.com
+// Date Created: November 26th, 2016
+// Purpose: Example of reading from the IR sensor
+
+  bool value = getIRSensorData();
+  Serial.println(value);
+  
+}
 
 void readAccelerometerExample() {
 // Programmer: Frederick Wachter - wachterfreddy@gmail.com
@@ -98,9 +119,39 @@ void moveServoExample() {
   
 }
 
+// -------------------------------------
+// ---------- LOGIC FUNCTIONS ----------
+// -------------------------------------
+
+bool isFlipped() {
+// Programmer: Frederick Wachter - wachterfreddy@gmail.com
+// Date Created: November 25th, 2016
+// Purpose: Example of reading from the accelerometer
+
+  bool is_flipped = 0;
+
+  sensors_event_t event = getAccelerometerData(bno);
+  if (abs(event.orientation.z) < ORIENT_Z_FLIPPED) {
+    is_flipped = 1;
+  }
+
+  return is_flipped;
+  
+}
+
 // --------------------------------------
 // ---------- SENSOR FUNCTIONS ----------
 // --------------------------------------
+
+bool getIRSensorData() {
+// Programmer: Frederick Wachter - wachterfreddy@gmail.com
+// Date Created: November 26th, 2016
+// Purpose: Get data from the IR sensor
+
+  bool value = !digitalRead(IR_SENSOR_PIN);
+  return value;
+
+}
 
 sensors_event_t getAccelerometerData(Adafruit_BNO055 &bno) {
 // Programmer: Frederick Wachter - wachterfreddy@gmail.com
