@@ -10,18 +10,18 @@
 #include <utility/imumaths.h>
 
 #define SERVO1_PWM 10
-#define SERVO2_PWM 11
+#define SERVO2_PWM 9
 #define SERVO1_START 120
 #define SERVO1_MAX 0
-#define SERVO2_START 0
+#define SERVO2_START 30
 #define SERVO2_MAX 100
 
-#define IR_PIN_LONG 2
-#define IR_PIN_SHORT 3
+#define IR_PIN_LONG 5
+#define IR_PIN_SHORT 6
 
-#define US_TRIGGER_PIN  5  // Arduino pin tied to trigger pin on the ultrasonic sensor.
-#define US_ECHO_PIN     6  // Arduino pin tied to echo pin on the ultrasonic sensor.
-#define US_MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+#define US_TRIGGER_PIN 5
+#define US_ECHO_PIN 6
+#define US_MAX_DISTANCE 200
 
 #define ACCEL_SAMPLERATE_DELAY_MS 100
 #define ORIENT_Z_FLIPPED 30
@@ -159,6 +159,8 @@ void controlLoop() {
         flipOver();
       }
     }
+  } else {
+    resetMotors();
   }
 }
 
@@ -170,7 +172,7 @@ bool isFlipped() {
   bool is_flipped = 0;
 
   sensors_event_t event = getAccelerometerData(bno);
-  if (abs(event.orientation.z) < ORIENT_Z_FLIPPED) {
+  if (abs(event.orientation.y) < ORIENT_Z_FLIPPED) {
     is_flipped = 1;
   }
 
